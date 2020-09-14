@@ -1,0 +1,3 @@
+include ':AirBar'
+include ':app'
+rootProject.name = "AirBarExample"

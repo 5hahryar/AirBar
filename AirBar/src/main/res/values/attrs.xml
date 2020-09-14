@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AirBar">
+        <attr name="progressBarFillColor" format="color" />
+        <attr name="progressBarColor0" format="color" />
+        <attr name="progressBarColor1" format="color" />
+        <attr name="backgroundFillColor" format="color" />
+        <attr name="backgroundCornerRadius" format="float" />
+        <attr name="icon" format="reference" />
+        <attr name="max" format="integer" />
+        <attr name="min" format="integer" />
+    </declare-styleable>
+</resources>

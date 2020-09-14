@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF"
+    android:padding="20dp"
+    tools:context=".MainActivity">
+
+    <com.shahryar.airbar.AirBar
+        android:id="@+id/airbar"
+        android:layout_width="70dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        app:icon="@drawable/ic_baseline_volume_up_24" />
+
+    <TextView
+        android:id="@+id/textBackgroundColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Background Color"
+        android:layout_below="@id/airbar"
+        android:layout_marginTop="30dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onClick"/>
+
+    <TextView
+        android:id="@+id/textLevelColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Level Fill Color"
+        android:layout_below="@id/airbar"
+        android:layout_alignParentEnd="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:layout_marginTop="30dp"/>
+
+    <TextView
+        android:id="@+id/textGradColor0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Gradient Color 0"
+        android:layout_below="@id/textBackgroundColor"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onClick"
+        android:layout_marginTop="30dp"/>
+
+    <TextView
+        android:id="@+id/textGradColor1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Gradient Color 1"
+        android:layout_below="@id/textLevelColor"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="30dp"
+        android:clickable="true"
+        android:onClick="onClick"
+        android:focusable="true"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Apply" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+</RelativeLayout>
