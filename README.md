@@ -16,7 +16,7 @@ allprojects {
   ```
 ```
 dependencies {
-		implementation 'com.github.5hahryar:AirBar:1.1.0'
+		implementation 'com.github.5hahryar:AirBar:1.2.0'
 	}
   ```
   
