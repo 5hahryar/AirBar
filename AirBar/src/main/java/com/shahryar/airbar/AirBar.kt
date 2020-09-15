@@ -26,7 +26,7 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
     var max: Double = mAttrs.getInt(R.styleable.AirBar_max, 100).toDouble()
     var min: Double = mAttrs.getInt(R.styleable.AirBar_min, 0).toDouble()
 
-    var progressBarFillColor: Int = mAttrs.getResourceId(
+    var progressBarFillColor: Int = mAttrs.getColor(
         R.styleable.AirBar_progressBarFillColor,
         resources.getColor(R.color.defaultLevel)
     )
@@ -60,14 +60,14 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
 
     var progressBarColor0: Int =
-        mAttrs.getResourceId(R.styleable.AirBar_progressBarColor0, progressBarFillColor)
+        mAttrs.getColor(R.styleable.AirBar_progressBarColor0, progressBarFillColor)
         set(value) {
             field = value
             invalidate()
         }
 
     var progressBarColor1: Int =
-        mAttrs.getResourceId(R.styleable.AirBar_progressBarColor1, progressBarFillColor)
+        mAttrs.getColor(R.styleable.AirBar_progressBarColor1, progressBarFillColor)
         set(value) {
             field = value
             invalidate()
