@@ -54,4 +54,4 @@ dependencies {
   min | Set minimum value
   
   # License
-  AirBar is licensed under `MIT license`. View [license](LICENSE).
+  AirBar is licensed under `MIT license`. View [LICENSE](LICENSE).
