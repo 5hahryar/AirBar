@@ -20,6 +20,25 @@ dependencies {
 	}
   ```
   
+  ### Jetpack Compose
+  ```
+AirBar(
+	modifier = Modifier
+	    .height(200.dp)
+	    .width(80.dp),
+	fillColor = Color.Blue,
+	fillColorGradient = listOf(Color.Blue, Color.Red),
+	backgroundColor = Color.LightGray,
+	cornerRadius = 20.dp,
+	maxValue = 100.0,
+	minValue = 0.0,
+	icon = painterResource(R.drawable.icon, "description"), 
+	onValuesChanged = { percentage, value ->
+	    // do something
+	}
+)
+  ```
+  
   ### XML
   ```
   <com.shahryar.airbar.AirBar
@@ -27,24 +46,6 @@ dependencies {
         android:layout_width="70dp"
         android:layout_height="200dp"/>
   ```
-  
-   ### Jetpack Compose
-  ```
-AirBar(
-	modifier = Modifier
-	    .height(200.dp)
-	    .width(80.dp),
-	fillColor = androidx.compose.ui.graphics.Color.Blue,
-	backgroundColor = androidx.compose.ui.graphics.Color.LightGray,
-	cornerRadius = 20.dp,
-	maxValue = 100.0,
-	minValue = 0.0,
-	onPercentageChanged = { percentage ->
-	    // percentage changed
-	}
-)
-  ```
-  *Note: AirBar for compose has limited functionality, it does not support icon and gradient colors yet!
   
   ### Listener
   ```
