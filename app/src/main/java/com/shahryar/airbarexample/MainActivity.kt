@@ -11,11 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toIcon
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.shahryar.airbar.AirBar
@@ -39,7 +35,11 @@ class MainActivity : AppCompatActivity() {
                 progress: Double,
                 percentage: Double
             ) {
-                Toast.makeText(baseContext, "ANDROID VIEW: After Progress Changed: $progress", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    baseContext,
+                    "ANDROID VIEW: After Progress Changed: $progress",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
         })
@@ -53,8 +53,11 @@ class MainActivity : AppCompatActivity() {
                 AirBar(modifier = Modifier
                     .height(200.dp)
                     .width(80.dp),
-                    onPercentageChanged = { percentage ->
-                    textComposePercentage.text = "COMPOSE VIEW: Percentage: $percentage"})
+                    onValuesChanged = { percentage, value ->
+                        textComposePercentage.text =
+                            "COMPOSE VIEW: Percentage: $percentage, Value: $value"
+                    }
+                )
             }
         }
     }

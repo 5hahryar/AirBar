@@ -5,11 +5,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,11 +19,12 @@ import androidx.compose.ui.unit.dp
 fun AirBar(
     modifier: Modifier = Modifier,
     fillColor: Color = colorResource(id = R.color.defaultLevel),
+    fillColorGradient: List<Color>? = null,
     backgroundColor: Color = colorResource(id = R.color.defaultBackground),
     cornerRadius: Dp = 40.dp,
-    maxValue: Double = 0.0,
-    minValue: Double = 100.0,
-    onPercentageChanged: (Double) -> Unit
+    minValue: Double = 0.0,
+    maxValue: Double = 100.0,
+    onValuesChanged: (percentage: Double, value: Double) -> Unit
 ) {
     var progress: Float by remember {
         mutableStateOf(0F)
@@ -38,38 +37,36 @@ fun AirBar(
     /**
      * Calculate progress
      */
-    fun getProgress(percentage: Double): Double {
-        return String.format("%.2f", ((((maxValue - minValue) * percentage) / 100.00) + minValue) - minValue).toDouble()
-    }
+    fun calculateValues(touchY: Float): Pair<Double, Double> {
+        val rawPercentage =
+            String.format("%.2f", 100 - ((touchY.toDouble() / bottomY.toDouble()) * 100)).toDouble()
+        val percentage =
+            if (rawPercentage < 0) 0.0 else if (rawPercentage > 100) 100.0 else rawPercentage
 
-    /**
-     * Calculate percentage
-     */
-    fun getPercentage(touchY: Float): Double {
-        val percentage = String.format(
-            "%.2f",
-            (100 - ((touchY.toDouble() / bottomY.toDouble()) * 100))
-        ).toDouble()
-//        onProgressChanged(getProgress(percentage))
+        val value = String.format("%.2f", ((percentage / 100) * (maxValue - minValue) + minValue))
+            .toDouble()
 
-        return percentage
+        return Pair(percentage, value)
     }
 
     Canvas(modifier = modifier.pointerInteropFilter { event ->
         when {
             event.y in 0.0..bottomY.toDouble() -> {
                 progress = event.y
-                onPercentageChanged(getPercentage(event.y))
+                val values = calculateValues(event.y)
+                onValuesChanged(values.first, values.second)
                 true
             }
             event.y > 100 -> {
                 progress = bottomY
-                onPercentageChanged(getPercentage(bottomY))
+                val values = calculateValues(event.y)
+                onValuesChanged(values.first, values.second)
                 true
             }
             event.y < 0 -> {
                 progress = 0F
-                onPercentageChanged(getPercentage(0F))
+                val values = calculateValues(event.y)
+                onValuesChanged(values.first, values.second)
                 true
             }
             else -> false
@@ -95,6 +92,13 @@ fun AirBar(
         drawContext.canvas.drawRect(0F, progress, size.width, size.height, Paint().apply {
             color = fillColor
             isAntiAlias = true
+            if (!fillColorGradient.isNullOrEmpty() && fillColorGradient.size > 1) {
+                shader = LinearGradientShader(
+                    from = Offset(0f, 0f),
+                    to = Offset(size.width, size.height),
+                    colors = fillColorGradient
+                )
+            }
         })
     }
 }
@@ -103,5 +107,5 @@ fun AirBar(
 @Composable
 @Preview
 fun Preview() {
-    AirBar(onPercentageChanged = {})
+    AirBar { _, _ -> }
 }
