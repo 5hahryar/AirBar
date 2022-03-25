@@ -9,34 +9,15 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 
 class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
+
+    companion object AirBarOrientation {
+        const val Horizontal = 0
+        const val Vertical = 1
+    }
 
     private val mAttrs = context.obtainStyledAttributes(attrs, R.styleable.AirBar)
     private val mPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -50,6 +31,9 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     var max: Double = mAttrs.getInt(R.styleable.AirBar_max, 100).toDouble()
     var min: Double = mAttrs.getInt(R.styleable.AirBar_min, 0).toDouble()
+
+    var orientation: Int =
+        mAttrs.getInt(R.styleable.AirBar_orientation, AirBarOrientation.Vertical)
 
     var progressBarFillColor: Int = mAttrs.getColor(
         R.styleable.AirBar_progressBarFillColor,
@@ -136,13 +120,26 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
     override fun onDrawForeground(canvas: Canvas?) {
         val bitmap = icon?.toBitmap()
         if (bitmap != null && canvas != null) {
-            val centerX: Float =
-                canvas.width.toDouble().div(2.00).toFloat() - bitmap.width.toDouble().div(2.00)
-                    .toFloat()
+            val topOffset: Float
+            val leftOffset: Float
+            if (orientation == AirBarOrientation.Vertical) {
+                leftOffset =
+                    canvas.width.toDouble().div(2.00).toFloat() - bitmap.width.toDouble().div(2.00)
+                        .toFloat()
+                topOffset =
+                    mBottom - (bitmap.height.toDouble() * 1.5).toFloat()
+            } else {
+                leftOffset =
+                    mLeft + (bitmap.width.toDouble() / 2).toFloat()
+                topOffset =
+                    canvas.height.toDouble().div(2.00).toFloat() - bitmap.height.toDouble()
+                        .div(2.00)
+                        .toFloat()
+            }
             canvas.drawBitmap(
                 bitmap,
-                centerX,
-                mBottom - (bitmap.height.toDouble() * 1.5).toFloat(),
+                leftOffset,
+                topOffset,
                 mPaint
             )
         }
@@ -168,13 +165,14 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
         //First init of level rect
         if (isVirgin) {
             mLeft = 0F
-            mTop = 200F
+            mTop = if (orientation == AirBarOrientation.Vertical) 200F else 0f
             mRight = mLeft + width
             mBottom = height + 0F
             mProgressRect.top = mTop
             mProgressRect.left = mLeft
             mProgressRect.bottom = mBottom
-            mProgressRect.right = mRight
+            mProgressRect.right =
+                if (orientation == AirBarOrientation.Vertical) mRight else mRight / 2
         }
 
         canvas?.drawRect(mProgressRect, mPaint)
@@ -183,11 +181,21 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event!!.action == MotionEvent.ACTION_MOVE) {
             isVirgin = false
-            Log.d("AIR", "${event.y}")
-            when {
-                event.y in 0.0..mBottom.toDouble() -> mProgressRect.top = event.y
-                event.y > 100 -> mProgressRect.top = mBottom
-                event.y < 0 -> mProgressRect.top = 0F
+
+            if (orientation == AirBarOrientation.Vertical) {
+                when {
+                    event.y in 0.0..mBottom.toDouble() -> mProgressRect.top = event.y
+                    event.y > 100 -> mProgressRect.top = mBottom
+                    event.y < 0 -> mProgressRect.top = 0F
+                }
+            } else {
+//                Log.d("AIR", "${event.y}, ${event.x}, $mRight")
+                mProgressRect.top = 0f
+                when {
+                    event.x in 0.0..mRight.toDouble() -> mProgressRect.right = event.x
+                    event.x > 100 -> mProgressRect.right = mRight
+                    event.x < 0 -> mProgressRect.right = 0F
+                }
             }
             mListener?.onProgressChanged(this, getProgress(), getPercentage())
             invalidate()
@@ -202,10 +210,17 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
      * Calculate percentage
      */
     private fun getPercentage(): Double {
-        return String.format(
-            "%.2f",
-            (100 - ((mProgressRect.top.toDouble() / mBottom.toDouble()) * 100))
-        ).toDouble()
+        return if (orientation == AirBarOrientation.Vertical) {
+            String.format(
+                "%.2f",
+                (100 - ((mProgressRect.top.toDouble() / mBottom.toDouble()) * 100))
+            ).toDouble()
+        } else {
+            String.format(
+                "%.2f",
+                ((mProgressRect.right.toDouble() / mRight.toDouble()) * 100)
+            ).toDouble()
+        }
     }
 
     /**
@@ -259,7 +274,7 @@ class AirBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
         path.rLineTo(0f, -heightMinusCorners)
 
-        path.close() //Given close, last lineto can be removed.
+        path.close() //Given close, last line to can be removed.
         return path
     }
 

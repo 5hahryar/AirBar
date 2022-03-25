@@ -2,6 +2,7 @@ package com.shahryar.airbar
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
@@ -30,22 +31,25 @@ fun AirBar(
     minValue: Double = 0.0,
     maxValue: Double = 100.0,
     icon: Painter? = null,
+    isHorizontal: Boolean = false,
     onValuesChanged: (percentage: Double, value: Double) -> Unit
 ) {
     var progress: Float by remember {
         mutableStateOf(0F)
     }
 
-    var bottomY: Float by remember {
-        mutableStateOf(0F)
-    }
+    var bottomY = 0f
+    var rightX = 0f
 
     /**
      * Calculate progress
      */
-    fun calculateValues(touchY: Float): Pair<Double, Double> {
-        val rawPercentage =
+    fun calculateValues(touchY: Float, touchX: Float): Pair<Double, Double> {
+        val rawPercentage = if (isHorizontal) {
+            String.format("%.2f", (touchX.toDouble() / rightX.toDouble()) * 100).toDouble()
+        } else {
             String.format("%.2f", 100 - ((touchY.toDouble() / bottomY.toDouble()) * 100)).toDouble()
+        }
         val percentage =
             if (rawPercentage < 0) 0.0 else if (rawPercentage > 100) 100.0 else rawPercentage
 
@@ -55,31 +59,56 @@ fun AirBar(
         return Pair(percentage, value)
     }
 
-    Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
+    Box(modifier = modifier, contentAlignment = if (isHorizontal) Alignment.CenterStart else Alignment.BottomCenter) {
         Canvas(modifier = modifier.pointerInteropFilter { event ->
-            when {
-                event.y in 0.0..bottomY.toDouble() -> {
-                    progress = event.y
-                    val values = calculateValues(event.y)
-                    onValuesChanged(values.first, values.second)
-                    true
+            if (!isHorizontal) {
+                when {
+                    event.y in 0.0..bottomY.toDouble() -> {
+                        progress = event.y
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    event.y > 100 -> {
+                        progress = bottomY
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    event.y < 0 -> {
+                        progress = 0F
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    else -> false
                 }
-                event.y > 100 -> {
-                    progress = bottomY
-                    val values = calculateValues(event.y)
-                    onValuesChanged(values.first, values.second)
-                    true
+            } else {
+                when {
+                    event.x in 0.0..rightX.toDouble() -> {
+                        progress = event.x
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    event.x > 100 -> {
+                        progress = rightX
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    event.x < 0 -> {
+                        progress = 0F
+                        val values = calculateValues(event.y, event.x)
+                        onValuesChanged(values.first, values.second)
+                        true
+                    }
+                    else -> false
                 }
-                event.y < 0 -> {
-                    progress = 0F
-                    val values = calculateValues(event.y)
-                    onValuesChanged(values.first, values.second)
-                    true
-                }
-                else -> false
             }
         }) {
             bottomY = size.height
+            rightX = size.width
 
             val path = Path()
             path.addRoundRect(
@@ -96,7 +125,7 @@ fun AirBar(
                 isAntiAlias = true
             })
             drawContext.canvas.clipPath(path = path, ClipOp.Intersect)
-            drawContext.canvas.drawRect(0F, progress, size.width, size.height, Paint().apply {
+            drawContext.canvas.drawRect(0F, if (isHorizontal) 0f else progress, if (isHorizontal) progress else size.width, size.height, Paint().apply {
                 color = fillColor
                 isAntiAlias = true
                 if (!fillColorGradient.isNullOrEmpty() && fillColorGradient.size > 1) {
@@ -111,7 +140,7 @@ fun AirBar(
 
         icon?.let {
             Icon(
-                modifier = Modifier.padding(bottom = 15.dp),
+                modifier = if (!isHorizontal) Modifier.padding(bottom = 15.dp) else Modifier.padding(start = 15.dp),
                 painter = it,
                 contentDescription = ""
             )
