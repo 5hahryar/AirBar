@@ -32,6 +32,7 @@ AirBar(
 	cornerRadius = 20.dp,
 	maxValue = 100.0,
 	minValue = 0.0,
+	isHorizontal = false,
 	icon = painterResource(R.drawable.icon, "description"), 
 	onValuesChanged = { percentage, value ->
 	    // do something
@@ -68,6 +69,7 @@ AirBar(
   progressBarColor1 | Set gradient color for top of the view
   backgroundFillColor | Set background color
   backgroundCornerRadius | Set corner radius 
+  orientation | Set orientation 
   icon | Set icon
   max | Set Maximum value 
   min | Set minimum value
