@@ -66,11 +66,20 @@ fun AirBar(
     fillColorGradient: List<Color>? = null,
     backgroundColor: Color = MaterialTheme.colors.background,
     cornerRadius: CornerRadius = CornerRadius(x = 40.dp.value, y = 40.dp.value),
-    minValue: Double = 0.0,
-    maxValue: Double = 100.0,
     icon: (@Composable () -> Unit)? = null,
     valueChanged: (Double) -> Unit
 ) {
+
+    // Changing min and max values are disabled for now
+    // TODO: decide on whether to use a percentage or raw value output?
+    val minValue: Double = 0.0
+    val maxValue: Double = 100.0
+
+    val vertical = if (controller.isHorizontal) 0f else controller.progressCoordinates
+    val horizontal = if (controller.isHorizontal) controller.progressCoordinates else controller.rightX
+
+    val bottomToTop = if(controller.animateProgress) animateFloatAsState(vertical).value else vertical
+    val startToEnd = if(controller.animateProgress) animateFloatAsState(horizontal).value else horizontal
 
     fun calculateValues(touchY: Float, touchX: Float): Double {
         val rawPercentage = if (controller.isHorizontal) {
@@ -83,12 +92,6 @@ fun AirBar(
 
         return String.format("%.2f", ((percentage / 100) * (maxValue - minValue) + minValue)).toDouble()
     }
-
-    val vertical = if (controller.isHorizontal) 0f else controller.progressCoordinates
-    val horizontal = if (controller.isHorizontal) controller.progressCoordinates else controller.rightX
-
-    val bottomToTop = if(controller.animateProgress) animateFloatAsState(vertical).value else vertical
-    val startToEnd = if(controller.animateProgress) animateFloatAsState(horizontal).value else horizontal
 
     Box(modifier = modifier, contentAlignment = if (controller.isHorizontal) Alignment.CenterStart else Alignment.BottomCenter) {
         Canvas(modifier = modifier.pointerInteropFilter { event ->

@@ -22,22 +22,36 @@ dependencies {
   
   ### Jetpack Compose
   ```
-AirBar(
-	modifier = Modifier
-	    .height(200.dp)
-	    .width(80.dp),
-	fillColor = Color.Blue,
-	fillColorGradient = listOf(Color.Blue, Color.Red),
-	backgroundColor = Color.LightGray,
-	cornerRadius = 20.dp,
-	maxValue = 100.0,
-	minValue = 0.0,
-	isHorizontal = false,
-	icon = painterResource(R.drawable.icon, "description"), 
-	onValuesChanged = { percentage, value ->
-	    // do something
-	}
-)
+  setContent {
+
+            val airBarController = rememberAirBarController(
+                50.0,
+                isHorizontal = true,
+                animateProgress = true
+            )
+
+            Column(
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(80.dp)
+            ) {
+                AirBar(
+                    modifier = Modifier.fillMaxSize(),
+                    controller = airBarController,
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon),
+                            contentDescription = "icon"
+                        )
+                    },
+                    backgroundColor = colorResource(id = R.color.primary),
+                    valueChanged = { value ->
+                        airBarController.progress = value
+                    }
+                )
+
+            }
+        }
   ```
   
   ### XML
